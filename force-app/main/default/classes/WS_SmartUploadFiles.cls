@@ -33,7 +33,7 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
         try{
             List<case> listCaseUpdate = new List<case>();
             List<ContentVersion> listContentVersionUpdate = new List<ContentVersion>();
-            List<ContentVersion> listContentVersion = [SELECT Id,Title,FileType,FileExtension,VersionData FROM ContentVersion WHERE Id =: content_version_id  LIMIT 1];
+            List<ContentVersion> listContentVersion = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE Id =: content_version_id  LIMIT 1];
             
             
             for(ContentVersion content_version : listContentVersion){
@@ -102,7 +102,17 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                     
                     //======== SEND REQUEST =========
                     HttpResponse response = service.sendRequest();
-                    
+                    system.debug('@@@ 5');
+                    if(response.getStatusCode()>199 && response.getStatusCode()<300 ){
+                        system.debug('@@@ 6');
+                        List<ContentVersion> listContentVersion2;
+                        listContentVersion2 = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE id =: content_version.id AND IsLatest = True];
+                        listContentVersion2[0].Id=null;
+                        listContentVersion2[0].ContentBodyId=null;
+                        //listContentVersion2[0].IsMajorVersion=true;
+                        listContentVersion2[0].estado_documento__c=listContentVersion2[0].estado_documento__c+'enviado'; 
+                        insert listContentVersion2[0];
+                    }
                     system.debug(' :: getStatus::: '+ response.getStatus());
                     system.debug(' :: getStatusCode::: '+ response.getStatusCode());
                     system.debug(' :: getBody::: '+ response.getBody());   

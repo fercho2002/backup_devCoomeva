@@ -239,7 +239,11 @@ public class CMV_CasoHandler_cls{
                     //====== SmartSupervision ====== 
                     //====== Valida si pertene alguno de los tipos de registros que envia a smartSupervision ====== //
                     if (item.recordtypeid == smartBanc || item.recordtypeid == smartFidu || item.recordtypeid == smartCorr){
-                                                
+                        system.debug('@@@ 1');
+                        if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c=='inicioenvio'){
+                            system.debug('@@@ 2');
+                            DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
+                        }
                         system.debug('==== SmartSupervision ====');
                         if ((item.Smart_Status__c == null || item.Smart_Status__c == '') && (item.CMV_Categoria__c == 'Queja' || item.CMV_Categoria__c == 'Reclamo')){
                             system.debug('==== SmartSupervision Created ===');
@@ -279,6 +283,7 @@ public class CMV_CasoHandler_cls{
                                     system.debug('===9');
                                     if (item.Status == '1' || item.Smart_Status__c == 'SendFinalDocument-Error'){
                                         system.debug('===10');
+                                        system.debug('@@@ 3');
                                         DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
                                         FIRSTRUN_AFTERUPDATE = false;
                                     }
