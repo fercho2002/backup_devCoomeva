@@ -6,6 +6,7 @@
         <members>WS_SmartUploadFiles</members>
         <members>CMV_CasoHandler_cls</members>
         <members>WS_SmartActionBatch</members>
+        <members>WS_SmartUpdateClaim</members>
         <name>ApexClass</name>
     </types>
     <!--<types>

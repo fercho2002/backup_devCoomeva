@@ -32,6 +32,7 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
         system.debug('=== WS_SmartUploadFiles content_version_id:' + content_version_id);
         try{
             List<case> listCaseUpdate = new List<case>();
+            List<case> listCaseUpdate2 = new List<case>();
             List<ContentVersion> listContentVersionUpdate = new List<ContentVersion>();
             List<ContentVersion> listContentVersion = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE Id =: content_version_id  LIMIT 1];
             
@@ -112,6 +113,11 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                         //listContentVersion2[0].IsMajorVersion=true;
                         listContentVersion2[0].estado_documento__c=listContentVersion2[0].estado_documento__c+'enviado'; 
                         insert listContentVersion2[0];
+                        if(listContentVersion2[0].estado_documento__c.contains('final')){
+                            caso.tiene_respuesta_final__c=true;
+                            caso.CS_Enviar_A_La_Super__c = '';
+                            listCaseUpdate2.add(caso);
+                        }
                     }
                     system.debug(' :: getStatus::: '+ response.getStatus());
                     system.debug(' :: getStatusCode::: '+ response.getStatusCode());
@@ -155,7 +161,19 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                     if(TIPO_FILE == 'FINAL'){
                         caso.Smart_Status__c = status;
                         caso.Smart_Status_Detail__c = status_msj;
+                        caso.CS_Enviar_A_La_Super__c = '';
                         listCaseUpdate.add(caso);
+                        
+                    }else{
+                        caso.CS_Enviar_A_La_Super__c = '';
+                        listCaseUpdate.add(caso); 
+                    }
+                    if(listCaseUpdate.size() > 0){
+                        try{
+                            update listCaseUpdate;
+                        }catch(Exception ex){
+                            system.debug('Error updating case status :' + ex.getMessage());
+                        }
                     }
             }
             
@@ -169,9 +187,9 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
             }
             
             //updating case status
-            if(listCaseUpdate.size() > 0){
+            if(listCaseUpdate2.size() > 0){
                 try{
-                    update listCaseUpdate;
+                    update listCaseUpdate2;
                 }catch(Exception ex){
                     system.debug('Error updating case status :' + ex.getMessage());
                 }

@@ -82,7 +82,7 @@ global class WS_SmartUploadFileBatch implements Database.Batchable<WClassFiles>,
                 //content_version.IsMajorVersion=true;
                 content_version.estado_documento__c='final-'; 
                 insert content_version;
-                listContentVersion2 = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE ContentDocumentId IN:listContentDocuments AND IsLatest = True AND Es_Archivo_Final__c = True];
+                listContentVersion2 = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE ContentDocumentId IN:listContentDocuments AND IsLatest = True AND Es_Archivo_Final__c = True AND Title=:content_version.Title];
                 if(!listContentVersion2[0].estado_documento__c.contains('enviado')){
                     listaFilesW.add(new WClassFiles(caso, listContentVersion2[0].Id, codigo_queja, TIPO_FILE ));     
                 }

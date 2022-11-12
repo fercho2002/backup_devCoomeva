@@ -240,7 +240,7 @@ public class CMV_CasoHandler_cls{
                     //====== Valida si pertene alguno de los tipos de registros que envia a smartSupervision ====== //
                     if (item.recordtypeid == smartBanc || item.recordtypeid == smartFidu || item.recordtypeid == smartCorr){
                         system.debug('@@@ 1');
-                        if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c=='inicioenvio'){
+                        if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c.contains('inicioenvio')){
                             system.debug('@@@ 2');
                             DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
                         }
