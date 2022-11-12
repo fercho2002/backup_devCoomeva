@@ -244,6 +244,12 @@ public class CMV_CasoHandler_cls{
                             system.debug('@@@ 2');
                             DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
                         }
+                        if((!oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c.contains('generar') && item.CS_Enviar_A_La_Super__c.contains('generar') )){
+                            system.debug('@@@ generar pdf ');
+                            List<case> listCasePdf = new List<case>();
+                            listCasePdf.add(item);
+                            setDataResponse(listCasePdf);
+                        }
                         system.debug('==== SmartSupervision ====');
                         if ((item.Smart_Status__c == null || item.Smart_Status__c == '') && (item.CMV_Categoria__c == 'Queja' || item.CMV_Categoria__c == 'Reclamo')){
                             system.debug('==== SmartSupervision Created ===');
