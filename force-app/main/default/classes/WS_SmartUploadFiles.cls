@@ -111,7 +111,8 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                         listContentVersion2[0].Id=null;
                         listContentVersion2[0].ContentBodyId=null;
                         //listContentVersion2[0].IsMajorVersion=true;
-                        listContentVersion2[0].estado_documento__c=listContentVersion2[0].estado_documento__c+'enviado'; 
+                        listContentVersion2[0].estado_documento__c=listContentVersion2[0].estado_documento__c+'enviado';
+                        listContentVersion2[0].Enviado_a_la_Super__c=true; 
                         insert listContentVersion2[0];
                         if(listContentVersion2[0].estado_documento__c.contains('final')){
                             caso.tiene_respuesta_final__c=true;
@@ -213,5 +214,10 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
         public Integer status_code;
         public Message message;
         public String detail;
+    }
+    @InvocableMethod(label='CS_GPrueba' description='Este metodo lprueba ' category='Case')
+    public static void prueba(){
+        ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.FATAL, 'my error msg');
+        
     }
 }

@@ -9,6 +9,10 @@
         <members>WS_SmartUpdateClaim</members>
         <name>ApexClass</name>
     </types>
+    <types>
+        <members>CMV_Caso_tgr</members>
+        <name>ApexTrigger</name>
+    </types>
     <!--<types>
         <members>*</members>
         <name>ApexComponent</name>

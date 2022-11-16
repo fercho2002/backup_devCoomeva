@@ -76,6 +76,7 @@ public class CMV_CasoHandler_cls{
 
     //DMS Se crea el siguiente metodo el cual se encarga de la creación del PDF ademas
     //de marcar el Caso como completado y relacionar el PDF al caso.
+    @InvocableMethod(label='CS_GenerarDocumento' description='Este metodo lo oy a llamar desde el flujo generar documento' category='Case')
     public static void setDataResponse(list<Case> caseObj){
         caseObj[0].CMV_closedBy__c = UserInfo.getUserId();
         if (caseObj[0].CMV_NmeroIdentificacion__c != null){
@@ -91,7 +92,7 @@ public class CMV_CasoHandler_cls{
             createPdfResponse(caseObj[0].Id, caseObj[0].caseNumber, idContact.CMV_NumeroIdentificacion__c);
         }
     }
-
+   
     @Future(callout = true)
     public static void createPdfResponse(Id idCase, String caseNum, String docNum){
         CMV_infoPdfCloseCase__mdt pdfInfo = [SELECT Id, CMV_PDFName__c
@@ -101,7 +102,7 @@ public class CMV_CasoHandler_cls{
         vfpPdfClCase.getParameters().put('id', idCase);
         conVer.ContentLocation = 'S'; // S specify this document is in SF, use E for external files
         conVer.PathOnClient = pdfInfo.CMV_PDFName__c + caseNum + '.pdf'; // The files name, extension is very important here which will help the file in preview.
-        conVer.Title = pdfInfo.CMV_PDFName__c + caseNum + '.pdf'; // Display name of the files
+        conVer.Title = pdfInfo.CMV_PDFName__c + caseNum; // Display name of the files // le quite el .pdf
         if (Test.isRunningTest()){
             blob pdfBody = blob.valueOf('Unit.Test');
             conVer.VersionData = pdfBody;
@@ -240,16 +241,15 @@ public class CMV_CasoHandler_cls{
                     //====== Valida si pertene alguno de los tipos de registros que envia a smartSupervision ====== //
                     if (item.recordtypeid == smartBanc || item.recordtypeid == smartFidu || item.recordtypeid == smartCorr){
                         system.debug('@@@ 1');
-                        if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c.contains('inicioenvio')){
-                            system.debug('@@@ 2');
-                            DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
+                        try{
+                            if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c.contains('inicioenvio')){
+                                system.debug('@@@ 2');
+                                DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
+                            }
+                        }catch(Exception e ){
+                            System.debug('esta nulo el campo ... ');
                         }
-                        if((!oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c.contains('generar') && item.CS_Enviar_A_La_Super__c.contains('generar') )){
-                            system.debug('@@@ generar pdf ');
-                            List<case> listCasePdf = new List<case>();
-                            listCasePdf.add(item);
-                            setDataResponse(listCasePdf);
-                        }
+                        
                         system.debug('==== SmartSupervision ====');
                         if ((item.Smart_Status__c == null || item.Smart_Status__c == '') && (item.CMV_Categoria__c == 'Queja' || item.CMV_Categoria__c == 'Reclamo')){
                             system.debug('==== SmartSupervision Created ===');
@@ -262,7 +262,7 @@ public class CMV_CasoHandler_cls{
                             FIRSTRUN_AFTERUPDATE = false;
                         } else if (item.Status != oldObjectMap.get(item.Id).Status){
                             system.debug('===3');
-                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK')){
+                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK' || item.Smart_Status__c == 'SendFinalDocument-OK')){
                                 if (item.Status == '1'){
                                     system.debug('===4');
                                     WS_SmartUpdateClaim.createdRequestFuture(item.Id);

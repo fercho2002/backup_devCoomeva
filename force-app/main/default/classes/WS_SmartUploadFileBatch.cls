@@ -73,34 +73,35 @@ global class WS_SmartUploadFileBatch implements Database.Batchable<WClassFiles>,
             System.debug('@@@ titulo : '+content_version.Title);
             
             System.debug('@@@ antes del if');
-            
-            if(content_version.Es_Archivo_Final__c  && !content_version.Title.contains('RESP_FINAL_SFC')){
-                System.debug('@@@ entro del if');
-                content_version.Title = content_version.Title+'RESP_FINAL_SFC';
-                content_version.Id=null;
-                content_version.ContentBodyId=null;
-                //content_version.IsMajorVersion=true;
-                content_version.estado_documento__c='final-'; 
-                insert content_version;
-                listContentVersion2 = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE ContentDocumentId IN:listContentDocuments AND IsLatest = True AND Es_Archivo_Final__c = True AND Title=:content_version.Title];
-                if(!listContentVersion2[0].estado_documento__c.contains('enviado')){
-                    listaFilesW.add(new WClassFiles(caso, listContentVersion2[0].Id, codigo_queja, TIPO_FILE ));     
-                }
-                
-            }else{
-                
-                System.debug('@@@ otraaa '+content_version.estado_documento__c);
-                try{
-                    System.debug('@@@ hhhh ');
-                    if(!content_version.estado_documento__c.contains('enviado')){
-                        System.debug('@@@ ggg ');
+            if(content_version.Es_Archivo_Final__c){  
+                if(content_version.Es_Archivo_Final__c  && !content_version.Title.contains('RESP_FINAL_SFC')){
+                    System.debug('@@@ entro del if');
+                    content_version.Title = content_version.Title+'RESP_FINAL_SFC';
+                    content_version.Id=null;
+                    content_version.ContentBodyId=null;
+                    //content_version.IsMajorVersion=true;
+                    content_version.estado_documento__c='final-'; 
+                    insert content_version;
+                    listContentVersion2 = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE ContentDocumentId IN:listContentDocuments AND IsLatest = True AND Es_Archivo_Final__c = True AND Title=:content_version.Title];
+                    if(!listContentVersion2[0].estado_documento__c.contains('enviado')){
+                        listaFilesW.add(new WClassFiles(caso, listContentVersion2[0].Id, codigo_queja, TIPO_FILE ));     
+                    }
+                    
+                }else{
+                    
+                    System.debug('@@@ otraaa '+content_version.estado_documento__c);
+                    try{
+                        System.debug('@@@ hhhh ');
+                        if(!content_version.estado_documento__c.contains('enviado')){
+                            System.debug('@@@ ggg ');
+                            listaFilesW.add(new WClassFiles(caso, content_version.Id, codigo_queja, TIPO_FILE ));
+                        }
+                    }catch(Exception e ){
+                        System.debug('@@@ lll ');
                         listaFilesW.add(new WClassFiles(caso, content_version.Id, codigo_queja, TIPO_FILE ));
                     }
-                }catch(Exception e ){
-                    System.debug('@@@ lll ');
-                    listaFilesW.add(new WClassFiles(caso, content_version.Id, codigo_queja, TIPO_FILE ));
+                    
                 }
-                
             }
         }
         
