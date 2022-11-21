@@ -262,7 +262,7 @@ public class CMV_CasoHandler_cls{
                             FIRSTRUN_AFTERUPDATE = false;
                         } else if (item.Status != oldObjectMap.get(item.Id).Status){
                             system.debug('===3');
-                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK' || item.Smart_Status__c == 'SendFinalDocument-OK')){
+                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK' || item.Smart_Status__c == 'SendFinalDocument-OK' || item.Smart_Status__c == 'reportACKUPDATE-OK')){
                                 if (item.Status == '1'){
                                     system.debug('===4');
                                     WS_SmartUpdateClaim.createdRequestFuture(item.Id);
