@@ -11,6 +11,8 @@
         <members>WS_SmartSetUpdateACK</members>
         <members>WS_SmartGetUpdateScheduller</members>
         <members>WS_Smart_Test</members>
+        <members>CMV_helperClassCreateTestData</members>
+        <members>CMV_testClassProjectPDF_tst</members>
         <name>ApexClass</name>
     </types>
     <types>
