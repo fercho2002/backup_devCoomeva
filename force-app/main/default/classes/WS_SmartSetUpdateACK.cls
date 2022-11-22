@@ -30,10 +30,14 @@ global class WS_SmartSetUpdateACK implements Queueable, Database.AllowsCallouts{
         List<String> listUsers = new List<String>();
         List<Case> caseUpdate = new List<Case>();
         
-        
-        for(String acc: Cuenta){
-            listUsers.add('\"' + acc+ '\"');
+        try{
+            for(String acc: Cuenta){
+                listUsers.add('\"' + acc+ '\"');
+            }
+        }catch(Exception e ){
+            System.debug('no se pudo recorrer el for ');
         }
+        
         
 
         String PersonToReport;

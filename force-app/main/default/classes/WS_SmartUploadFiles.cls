@@ -33,6 +33,7 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
         try{
             List<case> listCaseUpdate = new List<case>();
             List<case> listCaseUpdate2 = new List<case>();
+            List<case> listCaseOtos = new List<case>();
             List<ContentVersion> listContentVersionUpdate = new List<ContentVersion>();
             List<ContentVersion> listContentVersion = [SELECT Id,Title,FileType,FileExtension,VersionData,Es_Archivo_Final__c,ContentBodyId,ContentUrl,PathOnClient,ContentDocumentId,VersionNumber,estado_documento__c FROM ContentVersion WHERE Id =: content_version_id  LIMIT 1];
             
@@ -48,6 +49,7 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                     String CLOSE_DELIMITER = '\r\n--' + BOUNDARY + '--';
                     String fileType = content_version.FileExtension;
                     String fileName = content_version.Title;
+                    String otroName = 'Prueba';
                     
                     // ==== build formdata body ====
                     String metadataBodyHeader = DELIMITER + 'Content-Disposition: form-data; name="type";\r\n\r\n'
@@ -114,11 +116,10 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                         listContentVersion2[0].estado_documento__c=listContentVersion2[0].estado_documento__c+'enviado';
                         listContentVersion2[0].Enviado_a_la_Super__c=true; 
                         insert listContentVersion2[0];
-                        if(listContentVersion2[0].estado_documento__c.contains('final')){
-                            caso.tiene_respuesta_final__c=true;
-                            caso.CS_Enviar_A_La_Super__c = '';
-                            listCaseUpdate2.add(caso);
-                        }
+                        caso.tiene_respuesta_final__c=true;
+                        caso.CS_Enviar_A_La_Super__c = '';
+                        listCaseUpdate2.add(caso);
+                        
                     }
                     system.debug(' :: getStatus::: '+ response.getStatus());
                     system.debug(' :: getStatusCode::: '+ response.getStatusCode());
@@ -126,6 +127,7 @@ public class WS_SmartUploadFiles  implements Queueable, Database.AllowsCallouts{
                     
                     // Parse the JSON response
                     String status = '';
+                    String caseEN = '';
                     String status_msj = '';
                 	ResponseError resp;
                     if (response.getStatusCode() < 200 || response.getStatusCode() > 299) {

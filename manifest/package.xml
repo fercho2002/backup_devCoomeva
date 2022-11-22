@@ -9,6 +9,8 @@
         <members>WS_SmartUpdateClaim</members>
         <members>WS_SmartGetUpdateBatch</members>
         <members>WS_SmartSetUpdateACK</members>
+        <members>WS_SmartGetUpdateScheduller</members>
+        <members>WS_Smart_Test</members>
         <name>ApexClass</name>
     </types>
     <types>

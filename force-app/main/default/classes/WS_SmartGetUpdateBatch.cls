@@ -67,7 +67,7 @@ global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Databa
         for(Claim claim: lstWrap){
             system.debug('=== usuario:' + claim);
             listAccAck.add(claim.numero_id_CF);
-            for (Case caseObj : [select id,SFC_Nombre__c,SFC_Apellido__c,SFC_Correo__c,SFC_Direccion__c,SFC_Fecha__c,SFC_Municipio__c,SFC_Razon_Social__c,SFC_Telefono__c,Smart_Status__c,Smart_Status_Detail__c from case where Account.CMV_NumeroIdentificacion__c =: claim.numero_id_CF AND RecordType.DeveloperName=:TIPO_EMPRESA AND ((Status != 'Cerrado') OR (Status = 'Cerrado' AND Smart_Status__c='SendUpdateSmart-Error' )) ]) {
+            for (Case caseObj : [select id,SFC_Nombre__c,SFC_Apellido__c,SFC_Correo__c,SFC_Direccion__c,SFC_Fecha__c,SFC_Municipio__c,SFC_Razon_Social__c,SFC_Telefono__c,Smart_Status__c,Smart_Status_Detail__c from case where Account.CMV_NumeroIdentificacion__c =: claim.numero_id_CF AND RecordType.DeveloperName=:TIPO_EMPRESA AND ((Status != '1') OR (Status = '1' AND Smart_Status__c='SendUpdateSmart-Error' )) ]) {
                     System.debug('@@ = '+caseObj.id);
                         caseObj.SFC_Nombre__c=claim.nombre;
                         caseObj.SFC_Apellido__c=claim.apellido;
