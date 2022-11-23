@@ -33,7 +33,7 @@ global class WS_SmartUploadFileBatch implements Database.Batchable<WClassFiles>,
         
         //GET CASE DATA
         Case caso = [SELECT Id,Smart_code__c, CaseNumber, Status, RecordTypeId,Smart_Status__c FROM Case where id =: caseId limit 1 ];
-        
+
         //Obtener codigo entidad y tipo entidad segun empresa
         String COD_ENTIDAD = WS_SmartSetClaim.getCodigoEntidad(Schema.SObjectType.Case.getRecordTypeInfosById().get(caso.RecordTypeId).getDeveloperName());
         String TIPO_ENTIDAD = WS_SmartSetClaim.getTipoEntidad(Schema.SObjectType.Case.getRecordTypeInfosById().get(caso.RecordTypeId).getDeveloperName());
@@ -88,7 +88,7 @@ global class WS_SmartUploadFileBatch implements Database.Batchable<WClassFiles>,
                     }
                     
                 }else{
-                    
+
                     System.debug('@@@ otraaa '+content_version.estado_documento__c);
                     try{
                         System.debug('@@@ hhhh ');

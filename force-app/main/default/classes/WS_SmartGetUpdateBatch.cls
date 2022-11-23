@@ -9,11 +9,14 @@
 * ==============================================================================================================================
 */ 
 global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Database.Stateful, Database.AllowsCallouts{
+    List<String> listAccAck = new List<String>();
     global String CUSTOM_METADATA_NAME = 'WS_SMART_GET_UPDATE_CLAIMS';
     global String TIPO_EMPRESA;
     
+    
     //Contructor
     global WS_SmartGetUpdateBatch(String TipoEmpresa){
+        System.debug('@@@ contruc');
         this.TIPO_EMPRESA = TipoEmpresa;
     }
     
@@ -57,30 +60,50 @@ global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Databa
         return claims;
     }
     
-    global void execute(Database.BatchableContext BC, List<object> scope){
-        system.debug('======Execute WS_SmartGetUpdateBatch:'+this.TIPO_EMPRESA+' = =======' );   
+    global void execute(Database.BatchableContext BC,List<object> scope){
+        system.debug('======Execute WS_SmartGetUpdateBatch:'+this.TIPO_EMPRESA+' = =======' );
+        
         List<Claim> lstWrap = (List<Claim>)scope;
+        System.debug('@@@@@'+lstWrap.size());   
         List<Case> listCaseToUpdate = new List<Case>();
         List<Case> listCase;
-        List<String> listAccAck = new List<String>();
+        List<Case> caseO = new List<Case>();
+        Map<String,Claim> mapNumber= new Map<String,Claim>();
+        System.debug('@@@ este es el mapa '+mapNumber);
+        
+        //Claim correcto ;
+        
         system.debug('@@@ este es el claim '+lstWrap);
         for(Claim claim: lstWrap){
             system.debug('=== usuario:' + claim);
             listAccAck.add(claim.numero_id_CF);
-            for (Case caseObj : [select id,SFC_Nombre__c,SFC_Apellido__c,SFC_Correo__c,SFC_Direccion__c,SFC_Fecha__c,SFC_Municipio__c,SFC_Razon_Social__c,SFC_Telefono__c,Smart_Status__c,Smart_Status_Detail__c from case where Account.CMV_NumeroIdentificacion__c =: claim.numero_id_CF AND RecordType.DeveloperName=:TIPO_EMPRESA AND ((Status != '1') OR (Status = '1' AND Smart_Status__c='SendUpdateSmart-Error' )) ]) {
-                    System.debug('@@ = '+caseObj.id);
-                        caseObj.SFC_Nombre__c=claim.nombre;
-                        caseObj.SFC_Apellido__c=claim.apellido;
-                        caseObj.SFC_Correo__c=claim.correo;
-                        caseObj.SFC_Direccion__c=claim.direccion;
-                        caseObj.SFC_Fecha__c= Date.valueOf(claim.fecha_nacimiento);
-                        caseObj.SFC_Municipio__c=WS_SmartGetClaimBatch.getPoblacion(claim.municipio_cod);
-                        caseObj.SFC_Razon_Social__c=claim.razon_social;
-                        caseObj.SFC_Telefono__c=claim.telefono;
-                        listCaseToUpdate.add(caseObj);
-					}
-            
+            mapNumber.put(claim.numero_id_CF,claim);
         } 
+        caseO = [select id,SFC_Nombre__c,SFC_Apellido__c,SFC_Correo__c,SFC_Direccion__c,SFC_Fecha__c,SFC_Municipio__c,SFC_Razon_Social__c,SFC_Telefono__c,Smart_Status__c,Smart_Status_Detail__c,Account.CMV_NumeroIdentificacion__c from case where Account.CMV_NumeroIdentificacion__c IN: listAccAck AND RecordType.DeveloperName=:TIPO_EMPRESA AND ((Status != '1') OR (Status = '1' AND Smart_Status__c='SendUpdateSmart-Error' )) ];
+        for(Case ca : caseO){
+            System.debug('@@@---'+ca.id+'---'+ca.Account.CMV_NumeroIdentificacion__c);
+        }
+        if(caseO.size()>0){
+            for(Case caseObj : caseO){
+                try{
+                Claim datos = mapNumber.get(caseObj.Account.CMV_NumeroIdentificacion__c);
+                
+                System.debug('@@ map '+datos.numero_id_CF);
+                caseObj.SFC_Nombre__c=datos.nombre;
+                caseObj.SFC_Apellido__c=datos.apellido;
+                caseObj.SFC_Correo__c=datos.correo;
+                caseObj.SFC_Direccion__c=datos.direccion;
+                caseObj.SFC_Fecha__c= Date.valueOf(datos.fecha_nacimiento);
+                caseObj.SFC_Municipio__c=WS_SmartGetClaimBatch.getPoblacion(datos.municipio_cod);
+                caseObj.SFC_Razon_Social__c=datos.razon_social;
+                caseObj.SFC_Telefono__c=datos.telefono;
+                listCaseToUpdate.add(caseObj);
+                }catch(Exception e){
+                    System.debug('es null ');
+                }
+            }
+        }        
+
         if(listCaseToUpdate.size()>0){
             try{
                 update listCaseToUpdate;
@@ -88,13 +111,9 @@ global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Databa
                 System.debug('No se pudo actualizar los datos');
             }
             System.enqueueJob(new WS_SmartSetUpdateACK(listAccAck,listCaseToUpdate,TIPO_EMPRESA));
-            try{
-                senEmail(listAccAck);
-            }catch(Exception e ){
-                System.debug('No se pudo enviar el correo electronico');
-            }
+            
         }
-
+        
 
        
     }
@@ -102,6 +121,14 @@ global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Databa
     global void finish(Database.BatchableContext BC){
         system.debug('======Finish WS_SmartGetUpdateBatch:'+this.TIPO_EMPRESA+' = =======' );   
         //Start dowload files batch
+        if(!listAccAck.isEmpty()){
+            try{
+                senEmail(listAccAck);
+            }catch(Exception e ){
+                System.debug('No se pudo enviar el correo electronico');
+            }    
+        }
+
         system.debug('@@@ este es el final ');
         
     }
