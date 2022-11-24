@@ -13,6 +13,7 @@
         <members>WS_Smart_Test</members>
         <members>CMV_helperClassCreateTestData</members>
         <members>CMV_testClassProjectPDF_tst</members>
+        <members>WS_SmartGetClaimBatch</members>
         <name>ApexClass</name>
     </types>
     <types>

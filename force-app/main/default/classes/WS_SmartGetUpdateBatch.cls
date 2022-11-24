@@ -136,7 +136,10 @@ global class WS_SmartGetUpdateBatch implements Database.Batchable<Claim>, Databa
     public static void senEmail(List<String> num){
         if(num.size()>0){
             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-            String[] toAddresses = new String[] {'fernando.torres@vasslatam.com'};
+            //String[] toAddresses = new String[] {'fernando.torres@vasslatam.com'};
+            String myLabel = System.Label.AdminEmail;
+            String[] toAddresses = new String[]{};
+            toAddresses = myLabel.split(';');
             mail.setToAddresses(toAddresses);
             mail.setSubject('Usuarios actualizaron datos en SmartSuperVision');
             
