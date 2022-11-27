@@ -1,0 +1,85 @@
+/************************************************************************************************
+Desarrollado por:  Globant
+Autor:             Daniel Murcia Surez (DMS) 
+Proyecto:          Coomeva CRM
+Descripción:       Clase controladora de la visualForce cmvPdfRespCloseCase.
+
+Cambios (Versiones)
+-------------------------------------------------------------------------------------------------
+No.     Fecha                  Autor                                 Descripción
+----------  -------------   ----------------------  ---------------------------------------------
+1.0     07/02/20            Daniel Murcia Suarez (DMS)               Creación de la clase
+************************************************************************************************/
+public without sharing class CMV_pdfCaseController {
+    public CMV_infoPdfCloseCase__mdt pdfInfo {get;set;}
+    public string currentDate {get;set;}
+    public Boolean BlnFirmaCorta {get;set;}
+    public CMV_pdfCaseController(ApexPages.StandardController stdController) {
+        List<Case> lstnew = new List<Case>();
+        Case cdCase  = (Case) stdController.getRecord();
+        System.debug('Id Daniel: '+cdCase);
+        lstnew =[Select id, CMV_MatrizTipificacion__r.CMV_CausaCaso__r.Name from case where id =:cdCase.id];
+        String codCausas = system.label.CMV_BancoCausasFirmaAbreviada; 
+        for(string cdCausas : codCausas.split(';') ){
+            if(lstnew[0].CMV_MatrizTipificacion__r.CMV_CausaCaso__r.Name == cdCausas){
+                BlnFirmaCorta = true;
+                break;
+            }
+        }
+        pdfInfo =[SELECT ID, CMV_asuntoPdf__c,CMV_saludo__c,CMV_saludoSecundario__c,CMV_Cordialmente__c,CMV_ServicioClienteBancoomeva__c,
+                  CMV_Bancoomeva__c,CMV_footer__c,CMV_servicioAlcliente__c,CMV_FooterBanco__c,CMV_asuntoPdfBancoomeva__c, CMV_ServicioClientePrepagada__c
+                  FROM CMV_infoPdfCloseCase__mdt];
+        date fch=system.today();
+        List<Integer> lstMonthFch= new List<Integer>();
+        if(Test.isRunningTest()){
+            for(integer i=0;i<=12;i++){    
+                lstMonthFch.add(i);
+            }
+        }
+        else{
+            lstMonthFch.add(fch.month());
+        }
+        for(Integer monthFch: lstMonthFch){
+            
+            if (monthFch==1){
+                currentDate= fch.day() + ' de enero del ' + fch.year();
+            }
+            else if(monthFch==2){
+                currentDate= fch.day() + ' de febrero del ' + fch.year();
+            }
+            else if(monthFch==3){
+                currentDate= fch.day() + ' de marzo del ' + fch.year();
+            }
+            else if(monthFch==4){
+                currentDate= fch.day() + ' de abril del ' + fch.year();
+            }
+            else if(monthFch==5){
+                currentDate= fch.day() + ' de mayo del ' + fch.year();
+            }
+            else if(monthFch==6){
+                currentDate= fch.day() + ' de junio del ' + fch.year();
+            }
+            else if(monthFch==7){
+                currentDate= fch.day() + ' de julio del ' + fch.year();
+            }
+            else if(monthFch==8){
+                currentDate= fch.day() + ' de agosto del ' + fch.year();
+            }
+            else if(monthFch==9){
+                currentDate= fch.day() + ' de septiembre del ' + fch.year();
+            }
+            else if(monthFch==10){
+                currentDate= fch.day() + ' de octubre del ' + fch.year();
+            }
+            else if(monthFch==11){
+                currentDate= fch.day() + ' de noviembre del ' + fch.year();
+            }
+            else if(monthFch==12){
+                currentDate= fch.day() + ' de diciembre del ' + fch.year();
+            }
+        }
+        system.debug('currentDate'+currentDate);
+    }
+
+}
+//la cubre la clase CMV_testClassProjectPDF testmethod1 a un 97%

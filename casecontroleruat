@@ -1,0 +1,111 @@
+/************************************************************************************************
+Desarrollado por:  Globant
+Autor:             Daniel Murcia Surez (DMS) 
+Proyecto:          Coomeva CRM
+Descripción:       Clase controladora de la visualForce cmvPdfRespCloseCase.
+
+Cambios (Versiones)
+-------------------------------------------------------------------------------------------------
+No.     Fecha                  Autor                                 Descripción
+----------  -------------   ----------------------  ---------------------------------------------
+1.0     07/02/20            Daniel Murcia Suarez (DMS)               Creación de la clase
+************************************************************************************************/
+public without sharing class CMV_pdfCaseController {
+    public CMV_infoPdfCloseCase__mdt pdfInfo {get;set;}
+    public string currentDate {get;set;}
+    public Boolean BlnFirmaCorta {get;set;}
+    public CMV_pdfCaseController(ApexPages.StandardController stdController) {
+        List<Case> lstnew = new List<Case>();
+        Case cdCase  = (Case) stdController.getRecord();
+        lstnew =[Select id, CMV_MatrizTipificacion__r.CMV_CausaCaso__r.Name from case where id =:cdCase.id];
+        String codCausas = system.label.CMV_BancoCausasFirmaAbreviada; 
+        for(string cdCausas : codCausas.split(';') ){
+            if(lstnew[0].CMV_MatrizTipificacion__r.CMV_CausaCaso__r.Name == cdCausas){
+                BlnFirmaCorta = true;
+                break;
+            }
+        }
+        Case caso = [SELECT CMV_TipoRespuesta__c,RecordType.DeveloperName FROM Case WHERE ID=:cdCase.Id ];
+        
+        //Feb-2022- Se va a consultar infoPdf con base al tipo de respuesta y tipo de registro del caso
+        String empresa = '';
+        if(caso.CMV_TipoRespuesta__c=='Parcial'){
+            //Empresa es con base al tipo de registro del caso
+            if(caso.RecordType.DeveloperName=='CMV_TipoRegistroBancoomeva'){
+                empresa = 'BANCOOMEVA';
+            }else if(cdCase.RecordType.DeveloperName=='CMV_TipoRegistroMedicina_Prepagada' || cdCase.RecordType.DeveloperName=='CMV_TipoRegistroPersuasion' || cdCase.RecordType.DeveloperName=='CMV_PQRS_Atencion_de_Centros_Propios_Coomeva_MP'){
+                empresa = 'MEDICINA PREPAGADA';
+            }else{
+                //El valor por default seria Cooperativa , ya que solo cambia el asunto y no el cuerpo
+                empresa = 'COOPERATIVA Y SECTOR PROTECCIÓN';
+            }
+            pdfInfo =[SELECT ID, CMV_asuntoPdf__c,CMV_saludo__c,CMV_saludoSecundario__c,CMV_Cordialmente__c,CMV_ServicioClienteBancoomeva__c,
+                      CMV_Bancoomeva__c,CMV_footer__c,CMV_servicioAlcliente__c,CMV_FooterBanco__c,CMV_asuntoPdfBancoomeva__c, CMV_ServicioClientePrepagada__c,
+                      CMV_Empresa__c , CMV_TipoRespuesta__c, CMV_Saludo2__c, Parrafo_PQRS_1__c, Parrafo_PQRS_2__c, Parrafo_PQRS_3__c, CMV_Firma_Fiducoomeva_1__c, CMV_Firma_Fiducoomeva_2__c
+                      FROM CMV_infoPdfCloseCase__mdt WHERE CMV_Empresa__c=:empresa AND CMV_TipoRespuesta__c=:caso.CMV_TipoRespuesta__c];
+            
+        }
+        else{
+            pdfInfo =[SELECT ID, CMV_asuntoPdf__c,CMV_saludo__c,CMV_saludoSecundario__c,CMV_Cordialmente__c,CMV_ServicioClienteBancoomeva__c,
+                      CMV_Bancoomeva__c,CMV_footer__c,CMV_servicioAlcliente__c,CMV_FooterBanco__c,CMV_asuntoPdfBancoomeva__c, CMV_ServicioClientePrepagada__c,
+                      CMV_Empresa__c , CMV_TipoRespuesta__c, CMV_Saludo2__c, Parrafo_PQRS_1__c, Parrafo_PQRS_2__c, Parrafo_PQRS_3__c, CMV_Firma_Fiducoomeva_1__c, CMV_Firma_Fiducoomeva_2__c
+                      FROM CMV_infoPdfCloseCase__mdt where CMV_TipoRespuesta__c='Definitiva'];
+        }
+        system.debug('Tipo de respuesta:'+caso.CMV_TipoRespuesta__c+'. Empresa:'+empresa);
+        
+        
+        
+        date fch=system.today();
+        List<Integer> lstMonthFch= new List<Integer>();
+        if(Test.isRunningTest()){
+            for(integer i=0;i<=12;i++){    
+                lstMonthFch.add(i);
+            }
+        }
+        else{
+            lstMonthFch.add(fch.month());
+        }
+        for(Integer monthFch: lstMonthFch){
+            
+            if (monthFch==1){
+                currentDate= fch.day() + ' de enero del ' + fch.year();
+            }
+            else if(monthFch==2){
+                currentDate= fch.day() + ' de febrero del ' + fch.year();
+            }
+            else if(monthFch==3){
+                currentDate= fch.day() + ' de marzo del ' + fch.year();
+            }
+            else if(monthFch==4){
+                currentDate= fch.day() + ' de abril del ' + fch.year();
+            }
+            else if(monthFch==5){
+                currentDate= fch.day() + ' de mayo del ' + fch.year();
+            }
+            else if(monthFch==6){
+                currentDate= fch.day() + ' de junio del ' + fch.year();
+            }
+            else if(monthFch==7){
+                currentDate= fch.day() + ' de julio del ' + fch.year();
+            }
+            else if(monthFch==8){
+                currentDate= fch.day() + ' de agosto del ' + fch.year();
+            }
+            else if(monthFch==9){
+                currentDate= fch.day() + ' de septiembre del ' + fch.year();
+            }
+            else if(monthFch==10){
+                currentDate= fch.day() + ' de octubre del ' + fch.year();
+            }
+            else if(monthFch==11){
+                currentDate= fch.day() + ' de noviembre del ' + fch.year();
+            }
+            else if(monthFch==12){
+                currentDate= fch.day() + ' de diciembre del ' + fch.year();
+            }
+        }
+        system.debug('currentDate'+currentDate);
+    }
+    
+}
+//la cubre la clase CMV_testClassProjectPDF testmethod1 a un 97%

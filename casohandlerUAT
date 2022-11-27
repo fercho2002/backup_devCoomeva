@@ -16,9 +16,7 @@ Cambios (Versiones)
 public class CMV_CasoHandler_cls {
     string recordTypeSP = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('GAM_SectorProteccion').getRecordTypeId();
     string recordTypeRTC = Schema.SObjectType.case.getRecordTypeInfosByDeveloperName().get('GAM_Retenciones').getRecordTypeId();
-    String var1Dev = '';
-    String var2Dev = '';
-    List<Case> casDev = new List<Case>();
+    
     public CMV_CasoHandler_cls() {
 	
     }
@@ -26,11 +24,7 @@ public class CMV_CasoHandler_cls {
     public static void completarANSNivel1y2(list<Case> lstOldCase, list<Case> lstNewCase, Boolean blnTipificado){
         String strANSNombre = '';
         String strANSNombre1 = '';
-        String oldCas = '';
-        CMV_infoPdfCloseCase__mdt pdfErr = new CMV_infoPdfCloseCase__mdt();
-        List<Case> newCases =  new List<Case>();
         DateTime dteCompletedDate;
-        Integer contadorNuevos = 0;
         set<String> setNombresANS = new set<String>();
         //Cuando el caso se tipifica
         System.debug('lstNewCase[0].Status: ' + lstNewCase[0].Status);
@@ -89,15 +83,11 @@ public class CMV_CasoHandler_cls {
     }
     //DMS Se crea el siguiente metodo el cual se encarga de la creación del PDF ademas
     //de marcar el Caso como completado y relacionar el PDF al caso.
-    @InvocableMethod(label='CS_GenerarDocumento' description='Este metodo lo oy a llamar desde el flujo generar documento' category='Case')
     public static void setDataResponse(list<Case> caseObj){
         map<string,string> mRT = new map<string,string>();
-        map<string,string> mRsDev = new map<string,string>();
-        CMV_infoPdfCloseCase__mdt pdfAn = new CMV_infoPdfCloseCase__mdt();
         string recordTypeSP = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('GAM_SectorProteccion').getRecordTypeId();
     	string recordTypeRTC = Schema.SObjectType.case.getRecordTypeInfosByDeveloperName().get('GAM_Retenciones').getRecordTypeId();
-        string firstValueCase = '';
-        //---        if(lstNewCase[0].recordTypeId!=recordTypeSP && lstNewCase[0].recordTypeId!=recordTypeRTC){
+//---        if(lstNewCase[0].recordTypeId!=recordTypeSP && lstNewCase[0].recordTypeId!=recordTypeRTC){
 
         caseObj[0].CMV_closedBy__c=UserInfo.getUserId();
         if(caseObj[0].recordTypeId!=recordTypeSP && caseObj[0].recordTypeId!=recordTypeRTC){
@@ -116,10 +106,7 @@ public class CMV_CasoHandler_cls {
     public static void createPdfResponse(Id idCase, String caseNum, String docNum){
           system.debug('*****Entra en createPdfResponse...');
             CMV_infoPdfCloseCase__mdt pdfInfo = new CMV_infoPdfCloseCase__mdt();
-            CMV_infoPdfCloseCase__mdt pdfNew = new CMV_infoPdfCloseCase__mdt();
             contentVersion conVer = new ContentVersion();
-            List<Case> oldCasDev = new List<Case>();
-            String addValuesDev = '';
           
           //Feb2022 - Se requiere que si es respuesta parcial el formato del PDF sea distinto, se debe consultar el estado del caso en este metodo.
           Case casoRecibido = [Select Status , CMV_TipoRespuesta__c FROM CASE WHERE ID=:idCase];
@@ -141,7 +128,7 @@ public class CMV_CasoHandler_cls {
             vfpPdfClCase.getParameters().put('id', idCase);
             conVer.ContentLocation = 'S'; // S specify this document is in SF, use E for external files
             conVer.PathOnClient = pdfInfo.CMV_PDFName__c+caseNum+'.pdf'; // The files name, extension is very important here which will help the file in preview.
-            conVer.Title =  pdfInfo.CMV_PDFName__c+caseNum; // Display name of the files
+            conVer.Title =  pdfInfo.CMV_PDFName__c+caseNum+'.pdf'; // Display name of the files
             if(Test.isRunningTest()) { 
                 blob pdfBody = blob.valueOf('Unit.Test');
                 conVer.VersionData = pdfBody; 
@@ -187,11 +174,7 @@ public class CMV_CasoHandler_cls {
     @future
     public static void actualizarAmpliacion(String idCase){
         System.debug('idCase...............'+ idCase );
-        String inEnv = '';
         list<Case> objCase = [Select Id,CMV_AmpliacionAprobada__c,CMV_MatrizTipificacion__r.CMV_ANSNivel2__c,CreatedDate, recordTypeId, CMV_QuienOriginoCaso__c, CMV_FechaMaximaAmpliacion__c, CMV_FechaMaximaRespuesta__c From Case Where Id = :idCase];
-        String firstErr = '';
-        List<Case> oldMapCaseDev = new List<Case>();
-        Integer countValDev = 0;
         System.debug('objCase...............'+ objCase );
         if(!objCase.isEmpty()){
             objCase[0].CMV_AmpliacionAprobada__c = true;
@@ -217,8 +200,6 @@ public class CMV_CasoHandler_cls {
     
     //[AG:2020-13-08 Método para actualizar la fecha de respuesta de la soliciud cuando se cierra el caso]
     public static void actualizarSolicitudes(String idCase){
-        Integer valueAccCont = 0;
-      List<Case> listNewCasesMa = new List<Case>();  
       list<CMV_SolicitudGestion__c> lstSolicitudes = [
             Select   Id, CMV_Caso__c, CMV_FechaRespuesta__c
             From  CMV_SolicitudGestion__c
@@ -235,9 +216,6 @@ public class CMV_CasoHandler_cls {
     public static void actualizarCampoEmpresa(list<Case> lstNewCase, list<Case> lstOldCase){
         set<Id> setRTCasos = new set<Id>();
         map<String, String> mapRTXEmpresa = new map<String, String>();
-        map<String, String> mapRTXDev = new map<String, String>();
-        map<String, String> mapRTXValues = new map<String, String>();
-        Integer contAcc = 0;
         
         for(Integer i=0; i<lstNewCase.size(); i++){
             if((lstNewCase[i].CMV_NombreEmpresa__c == null && lstNewCase[i].RecordTypeId != null) || (lstOldCase != null && lstOldCase[i].RecordTypeId != lstNewCase[i].RecordTypeId))
@@ -306,17 +284,7 @@ public class CMV_CasoHandler_cls {
                     //====== SmartSupervision ====== 
                     //====== Valida si pertene alguno de los tipos de registros que envia a smartSupervision ====== //
                     if (item.recordtypeid == smartBanc || item.recordtypeid == smartFidu || item.recordtypeid == smartCorr){
-                        
-                        system.debug('@@@ 1');
-                        try{
-                            if((oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c=='' || oldObjectMap.get(item.Id).CS_Enviar_A_La_Super__c==null ) && item.CS_Enviar_A_La_Super__c.contains('inicioenvio')){
-                                system.debug('@@@ 2');
-                                DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
-                            
-                            }
-                        }catch(Exception e ){
-                            System.debug('esta nulo el campo ... ');
-                        }
+                                                
                         system.debug('==== SmartSupervision ====');
                         if ((item.Smart_Status__c == null || item.Smart_Status__c == '') && (item.CMV_Categoria__c == 'Queja' || item.CMV_Categoria__c == 'Reclamo')){
                             system.debug('==== SmartSupervision Created ===');
@@ -329,7 +297,7 @@ public class CMV_CasoHandler_cls {
                             FIRSTRUN_AFTERUPDATE = false;
                         } else if (item.Status != oldObjectMap.get(item.Id).Status){
                             system.debug('===3');
-                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK'  || item.Smart_Status__c == 'SendFinalDocument-OK' || item.Smart_Status__c == 'reportACKUPDATE-OK')){
+                            if (item.Smart_Status__c != 'sendToSmart-Error' && (item.Smart_Status__c == 'sendToSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-OK' || item.Smart_Status__c == 'SendUpdateSmart-ERROR' || item.Smart_Status__c == 'reportACK-OK')){
                                 if (item.Status == '1'){
                                     system.debug('===4');
                                     WS_SmartUpdateClaim.createdRequestFuture(item.Id);
@@ -356,7 +324,6 @@ public class CMV_CasoHandler_cls {
                                     system.debug('===9');
                                     if (item.Status == '1' || item.Smart_Status__c == 'SendFinalDocument-Error'){
                                         system.debug('===10');
-                                        system.debug('@@@ 3');
                                         DataBase.executeBatch(new WS_SmartUploadFileBatch(item.Id, 'FINAL'), 1);
                                         FIRSTRUN_AFTERUPDATE = false;
                                     }

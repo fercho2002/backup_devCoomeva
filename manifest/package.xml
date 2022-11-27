@@ -20,6 +20,10 @@
         <members>CMV_Caso_tgr</members>
         <name>ApexTrigger</name>
     </types>
+    <types>
+        <members>CMV_infoPdfCloseCase__mdt</members>
+        <name>CustomMetadata</name>	
+    </types>
     <!--<types>
         <members>*</members>
         <name>ApexComponent</name>

@@ -78,8 +78,6 @@ public class CMV_testClassProjectPDF_tst {
         objCase.CMV_MatrizTipificacion__c = objMatriz.id;
         objCase.EntitlementId = strIdProceso;
         insert objCase;
-
-        
         
         Account AccPA = new Account();
 		AccPA.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('CMV_PersonaNatural').getRecordTypeId();
@@ -283,33 +281,5 @@ public class CMV_testClassProjectPDF_tst {
         BusinessHours objBussinesHour = [SELECT Id FROM BusinessHours WHERE Name = 'Default' LIMIT 1];
         // DateTime dteFecha = DateTime.newInstance(dteFechaIni.date(), objTime);
         //CMV_CasoHandler_cls.calcularFechaANS(myDT, 5, objBussinesHour);
-    }
-
-    static testMethod void testMethod10(){ 
-       
-        
-        List<Case> lstCase =  [SELECT Id,Status,recordTypeId,CMV_FechaMaximaRespuesta__c,CMV_QuienOriginoCaso__c,CreatedDate FROM Case  limit 1 ];
-        List<Case> lstSi = new List<Case>();
-        Map<ID,Case> mapTest= new Map<ID,Case>();
-        Id recId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('CMV_TipoRegistroBancoomeva').getRecordTypeId();
-        
-        for(Case cas : lstCase){
-            cas.RecordTypeId = recId;
-            cas.CMV_QuienOriginoCaso__c = 'Defensoría';
-            mapTest.put(cas.id,cas);
-            lstSi.add(cas);
-        }
-        CMV_CasoHandler_cls.checkOriginoCaso(lstSi,mapTest);
-
-        List<Case> lstCase2 =  [SELECT Id,Status,recordTypeId,CMV_FechaMaximaRespuesta__c,CMV_QuienOriginoCaso__c,CreatedDate FROM Case where RecordType.DeveloperName = 'CMV_TipoRegistroBancoomeva' ANd CMV_QuienOriginoCaso__c ='Superfinanciera' and Status != '14' limit 1 ];
-        List<Case> lstCase3 = new List<Case>();
-        Map<ID,Case> mapTest2= new Map<ID,Case>();
-        for(Case cas2 : lstCase2){
-            cas2.RecordTypeId = recId;
-            cas2.CMV_QuienOriginoCaso__c = 'Defensoría';
-            lstCase3.add(cas2);
-            mapTest2.put(cas2.id,cas2);
-        }
-        CMV_CasoHandler_cls.checkOriginoCaso(lstCase3,mapTest2);
     }
 }
